@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>CookiHelper TM6</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Lora:ital,wght@0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{--bg:#f5f3ef;--white:#ffffff;--red:#e2001a;--red-dark:#b8001a;--red-soft:#fff0f0;--ink:#1c1c1e;--mid:#6e6e73;--light:#aeaeb2;--border:#e5e5ea;--green:#34c759}
+html,body{height:100%;background:var(--bg);font-family:'Nunito',sans-serif;color:var(--ink);font-size:16px}
+.screen{display:none;min-height:100vh;flex-direction:column}
+.screen.active{display:flex}
+.app-header{background:var(--white);padding:16px 20px 14px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100}
+.header-logo{width:36px;height:36px;background:var(--red);border-radius:10px;display:flex;align-items:center;justify-content:center;color:white;font-size:18px;font-weight:900;flex-shrink:0}
+.header-title{font-size:18px;font-weight:800}
+.header-title span{color:var(--red)}
+.header-badge{margin-left:auto;background:var(--red-soft);color:var(--red);font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;padding:4px 8px;border-radius:6px}
+.body-scroll{flex:1;padding:24px 20px;overflow-y:auto}
+.greeting{margin-bottom:28px}
+.greeting h2{font-family:'Lora',serif;font-size:26px;font-weight:600;line-height:1.25;margin-bottom:6px}
+.greeting h2 em{font-style:italic;color:var(--red)}
+.greeting p{color:var(--mid);font-size:14px;line-height:1.5}
+.info-box{background:#e8f4fd;border:1.5px solid #b3d9f5;border-radius:14px;padding:16px;margin-bottom:20px;font-size:13px;line-height:1.7;color:#1a5276}
+.tabs{display:flex;background:var(--border);border-radius:12px;padding:3px;margin-bottom:20px}
+.tab-btn{flex:1;padding:10px;border:none;background:transparent;border-radius:10px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;color:var(--mid);cursor:pointer;transition:all 0.2s}
+.tab-btn.active{background:var(--white);color:var(--ink);box-shadow:0 1px 6px rgba(0,0,0,0.1)}
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+.input-group{margin-bottom:16px}
+.input-label{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:0.8px;color:var(--mid);margin-bottom:8px;display:block}
+.text-input{width:100%;padding:14px 16px;border:1.5px solid var(--border);border-radius:12px;font-family:'Nunito',sans-serif;font-size:14px;color:var(--ink);background:var(--white);outline:none;transition:border 0.2s}
+.text-input:focus{border-color:var(--red)}
+.text-input::placeholder{color:var(--light)}
+textarea.text-input{min-height:180px;resize:vertical;line-height:1.5}
+.portions-row{display:flex;align-items:center;gap:12px;background:var(--white);border:1.5px solid var(--border);border-radius:12px;padding:12px 16px}
+.portions-label{font-size:14px;font-weight:600;flex:1}
+.portions-note{font-size:11px;color:var(--mid)}
+.portions-control{display:flex;align-items:center;border:1.5px solid var(--border);border-radius:10px;overflow:hidden}
+.portions-btn{width:36px;height:36px;border:none;background:var(--bg);color:var(--ink);font-size:20px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.portions-btn:active{background:var(--border)}
+.portions-num{width:36px;height:36px;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;border-left:1.5px solid var(--border);border-right:1.5px solid var(--border)}
+.btn-primary{width:100%;padding:18px;background:var(--red);color:white;border:none;border-radius:16px;font-family:'Nunito',sans-serif;font-size:16px;font-weight:800;cursor:pointer;margin-top:8px;transition:transform 0.1s,background 0.2s;display:flex;align-items:center;justify-content:center;gap:8px}
+.btn-primary:active{transform:scale(0.98);background:var(--red-dark)}
+.error-box{background:#fff0f0;border:1.5px solid #ffcdd2;border-radius:12px;padding:14px 16px;margin-top:12px;font-size:13px;color:#c62828;line-height:1.5;display:none}
+.change-key-btn{text-align:center;margin-top:16px;font-size:12px;color:var(--mid);cursor:pointer;text-decoration:underline}
+#screen-loading{align-items:center;justify-content:center;padding:40px 20px}
+.loading-inner{text-align:center;max-width:280px}
+.spinner-wrap{width:80px;height:80px;margin:0 auto 24px;position:relative}
+.spinner-ring{width:80px;height:80px;border-radius:50%;border:4px solid var(--border);border-top-color:var(--red);animation:spin 0.9s linear infinite;position:absolute}
+.spinner-icon{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:28px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-inner h3{font-family:'Lora',serif;font-size:20px;font-weight:600;margin-bottom:8px}
+.loading-inner p{color:var(--mid);font-size:14px;line-height:1.5}
+.loading-steps{margin-top:28px;text-align:left;display:flex;flex-direction:column;gap:10px}
+.loading-step{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--white);border-radius:10px;font-size:13px;font-weight:600;color:var(--mid);transition:all 0.3s}
+.loading-step.done{color:var(--green)}
+.loading-step.active{color:var(--ink);background:var(--red-soft)}
+.step-dot{width:8px;height:8px;border-radius:50%;background:var(--border);flex-shrink:0;transition:background 0.3s}
+.loading-step.done .step-dot{background:var(--green)}
+.loading-step.active .step-dot{background:var(--red);animation:pulse 0.8s ease infinite}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.4)}}
+.recipe-header{background:var(--red);padding:20px 20px 24px;color:white}
+.recipe-header-top{display:flex;align-items:flex-start;gap:12px;margin-bottom:16px}
+.back-btn{width:36px;height:36px;background:rgba(255,255,255,0.2);border:none;border-radius:10px;color:white;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
+.recipe-name{font-family:'Lora',serif;font-size:22px;font-weight:600;line-height:1.25;flex:1}
+.recipe-meta{display:flex;gap:8px;flex-wrap:wrap}
+.meta-chip{background:rgba(255,255,255,0.2);padding:6px 12px;border-radius:20px;font-size:12px;font-weight:700;display:flex;align-items:center;gap:5px}
+.recipe-body{flex:1;overflow-y:auto;padding-bottom:40px}
+.section{background:var(--white);margin:16px 16px 0;border-radius:16px;overflow:hidden;box-shadow:0 2px 16px rgba(0,0,0,0.08)}
+.section-header{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px}
+.section-icon{width:30px;height:30px;border-radius:8px;background:var(--red-soft);color:var(--red);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.section-title{font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:0.8px}
+.ingredient-row{display:flex;align-items:center;padding:12px 16px;border-bottom:1px solid var(--border);gap:12px}
+.ingredient-row:last-child{border-bottom:none}
+.ing-amount{font-size:14px;font-weight:800;color:var(--red);min-width:70px;text-align:right}
+.ing-name{font-size:14px;font-weight:600;flex:1}
+.ing-note{font-size:11px;color:var(--mid);margin-top:2px;font-weight:400}
+.step-card{padding:16px;border-bottom:1px solid var(--border)}
+.step-card:last-child{border-bottom:none}
+.step-top{display:flex;align-items:flex-start;gap:12px;margin-bottom:12px}
+.step-num{width:28px;height:28px;background:var(--red);color:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;flex-shrink:0}
+.step-title-text{font-size:15px;font-weight:800;padding-top:4px;flex:1}
+.step-params{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.param-chip{display:flex;align-items:center;gap:4px;padding:5px 10px;border-radius:8px;font-size:12px;font-weight:700}
+.chip-time{background:#fff3e0;color:#e65100}
+.chip-temp{background:#fce4ec;color:#c62828}
+.chip-speed{background:#e3f2fd;color:#1565c0}
+.chip-mode{background:#f3e5f5;color:#6a1b9a}
+.step-desc{font-size:13px;color:var(--mid);line-height:1.6}
+.notes-content{padding:14px 16px}
+.note-item{display:flex;gap:8px;margin-bottom:10px;font-size:13px;line-height:1.5;color:var(--mid)}
+.note-item:last-child{margin-bottom:0}
+.note-dot{color:var(--red);font-size:16px;line-height:1.3;flex-shrink:0}
+.cookidoo-hint{margin:16px 16px 0;background:linear-gradient(135deg,#fff8e1,#fff3cd);border:1.5px solid #ffe082;border-radius:16px;padding:14px 16px;display:flex;gap:10px;align-items:flex-start}
+.hint-icon{font-size:20px;flex-shrink:0}
+.hint-text{font-size:12px;line-height:1.5;color:#5d4037;font-weight:600}
+</style>
+</head>
+<body>
+
+<div id="screen-apikey" class="screen">
+  <div class="app-header">
+    <div class="header-logo">T</div>
+    <div class="header-title">Cooki<span>Helper</span></div>
+    <div class="header-badge">TM6</div>
+  </div>
+  <div class="body-scroll">
+    <div class="greeting">
+      <h2>Configura tu <em>API Key</em> de Gemini</h2>
+      <p>Necesitas una key gratuita de Google. Solo la introduces una vez.</p>
+    </div>
+    <div class="info-box">
+      <strong>Pasos para obtener tu key gratuita:</strong><br>
+      1. Ve a <strong>aistudio.google.com</strong><br>
+      2. Inicia sesion con tu cuenta de Google<br>
+      3. Clic en <strong>"Get API key"</strong> y luego <strong>"Create API key"</strong><br>
+      4. Copia la key y pegala abajo
+    </div>
+    <div class="input-group">
+      <label class="input-label">Tu API Key de Gemini</label>
+      <input type="text" id="apikey-input" class="text-input" placeholder="AIzaSy..." autocomplete="off" />
+    </div>
+    <div id="apikey-error" class="error-box"></div>
+    <button class="btn-primary" onclick="saveAndContinue()">Guardar y continuar</button>
+    <p style="text-align:center;margin-top:14px;font-size:12px;color:var(--mid)">Tu key se guarda solo en este dispositivo.</p>
+  </div>
+</div>
+
+<div id="screen-input" class="screen">
+  <div class="app-header">
+    <div class="header-logo">T</div>
+    <div class="header-title">Cooki<span>Helper</span></div>
+    <div class="header-badge">TM6</div>
+  </div>
+  <div class="body-scroll">
+    <div class="greeting">
+      <h2>Convierte <em>cualquier receta</em> al formato Thermomix</h2>
+      <p>Pega la URL o el texto y te la adapto con temperaturas, velocidades y tiempos para tu TM6.</p>
+    </div>
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab('url')">Desde URL</button>
+      <button class="tab-btn" onclick="switchTab('text')">Pegar texto</button>
+    </div>
+    <div id="tab-url" class="tab-panel active">
+      <div class="input-group">
+        <label class="input-label">Enlace de la receta</label>
+        <input type="url" id="url-input" class="text-input" placeholder="https://www.ejemplo.com/receta..." />
+      </div>
+    </div>
+    <div id="tab-text" class="tab-panel">
+      <div class="input-group">
+        <label class="input-label">Texto de la receta</label>
+        <textarea id="text-input" class="text-input" placeholder="Pega aqui los ingredientes y pasos..."></textarea>
+      </div>
+    </div>
+    <div class="input-group">
+      <label class="input-label">Porciones</label>
+      <div class="portions-row">
+        <div>
+          <div class="portions-label">Numero de personas</div>
+          <div class="portions-note">Las cantidades se ajustan automaticamente</div>
+        </div>
+        <div class="portions-control">
+          <button class="portions-btn" onclick="changePortion(-1)">-</button>
+          <div class="portions-num" id="portions-display">4</div>
+          <button class="portions-btn" onclick="changePortion(1)">+</button>
+        </div>
+      </div>
+    </div>
+    <div id="error-box" class="error-box"></div>
+    <button class="btn-primary" onclick="convertRecipe()">Convertir para TM6</button>
+    <p class="change-key-btn" onclick="changeApiKey()">Cambiar API key de Gemini</p>
+  </div>
+</div>
+
+<div id="screen-loading" class="screen">
+  <div class="loading-inner">
+    <div class="spinner-wrap">
+      <div class="spinner-ring"></div>
+      <div class="spinner-icon">&#127859;</div>
+    </div>
+    <h3>Adaptando tu receta...</h3>
+    <p>Ajustando tiempos, temperaturas y velocidades para tu TM6.</p>
+    <div class="loading-steps">
+      <div class="loading-step" id="lstep-1"><div class="step-dot"></div> Leyendo la receta original</div>
+      <div class="loading-step" id="lstep-2"><div class="step-dot"></div> Calculando parametros TM6</div>
+      <div class="loading-step" id="lstep-3"><div class="step-dot"></div> Ajustando tiempos y porciones</div>
+      <div class="loading-step" id="lstep-4"><div class="step-dot"></div> Preparando la receta</div>
+    </div>
+  </div>
+</div>
+
+<div id="screen-recipe" class="screen">
+  <div class="recipe-header">
+    <div class="recipe-header-top">
+      <button class="back-btn" onclick="showScreen('screen-input')">&#8592;</button>
+      <div class="recipe-name" id="recipe-title">Receta</div>
+    </div>
+    <div class="recipe-meta" id="recipe-meta"></div>
+  </div>
+  <div class="recipe-body">
+    <div class="cookidoo-hint">
+      <div class="hint-icon">&#128161;</div>
+      <div class="hint-text"><strong>Tip Cookidoo:</strong> Copia cada paso al formulario de Cookidoo. Los parametros estan listos para pegar.</div>
+    </div>
+    <div class="section">
+      <div class="section-header"><div class="section-icon">&#129367;</div><div class="section-title">Ingredientes</div></div>
+      <div id="ingredients-list"></div>
+    </div>
+    <div class="section">
+      <div class="section-header"><div class="section-icon">&#128104;&#8205;&#127859;</div><div class="section-title">Pasos Thermomix</div></div>
+      <div id="steps-list"></div>
+    </div>
+    <div class="section" style="margin-bottom:0">
+      <div class="section-header"><div class="section-icon">&#128221;</div><div class="section-title">Notas TM6</div></div>
+      <div class="notes-content" id="notes-list"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+var currentTab='url',portions=4,loadingTimer=null;
+
+function showScreen(id){document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active')});document.getElementById(id).classList.add('active')}
+
+function switchTab(tab){currentTab=tab;document.querySelectorAll('.tab-btn').forEach(function(b,i){b.classList.toggle('active',(i===0&&tab==='url')||(i===1&&tab==='text'))});document.getElementById('tab-url').classList.toggle('active',tab==='url');document.getElementById('tab-text').classList.toggle('active',tab==='text')}
+
+function changePortion(d){portions=Math.max(1,Math.min(12,portions+d));document.getElementById('portions-display').textContent=portions}
+
+function loadKey(){try{return localStorage.getItem('gmkey')||''}catch(e){return''}}
+function saveKey(k){try{localStorage.setItem('gmkey',k)}catch(e){}}
+
+function saveAndContinue(){
+  var k=document.getElementById('apikey-input').value.trim();
+  var e=document.getElementById('apikey-error');
+  if(!k||k.length<10){e.textContent='Introduce una API key valida.';e.style.display='block';return}
+  saveKey(k);e.style.display='none';showScreen('screen-input')
+}
+
+function changeApiKey(){try{localStorage.removeItem('gmkey')}catch(e){}document.getElementById('apikey-input').value='';document.getElementById('apikey-error').style.display='none';showScreen('screen-apikey')}
+
+function animateLoading(){
+  var s=['lstep-1','lstep-2','lstep-3','lstep-4'],i=0;
+  s.forEach(function(x){document.getElementById(x).classList.remove('active','done')});
+  function next(){if(i>0){document.getElementById(s[i-1]).classList.remove('active');document.getElementById(s[i-1]).classList.add('done')}if(i<s.length){document.getElementById(s[i]).classList.add('active');i++;loadingTimer=setTimeout(next,1800)}}
+  next()
+}
+
+async function convertRecipe(){
+  var key=loadKey();
+  if(!key){showScreen('screen-apikey');return}
+  var eb=document.getElementById('error-box');
+  eb.style.display='none';
+  var content='';
+  if(currentTab==='url'){
+    var u=document.getElementById('url-input').value.trim();
+    if(!u){eb.textContent='Ingresa una URL valida.';eb.style.display='block';return}
+    content='URL: '+u
+  }else{
+    var t=document.getElementById('text-input').value.trim();
+    if(!t){eb.textContent='Pega el texto de la receta.';eb.style.display='block';return}
+    content=t
+  }
+  showScreen('screen-loading');animateLoading();
+  var prompt='Eres experto en Thermomix TM6. Convierte esta receta:\n\n'+content+'\n\nPorciones deseadas: '+portions+'\n\nResponde SOLO con JSON valido sin markdown sin backticks:\n{"title":"nombre","portions":'+portions+',"totalTime":"X min","difficulty":"Facil o Media o Dificil","ingredients":[{"amount":"cantidad y unidad","name":"ingrediente","note":"nota o string vacio"}],"steps":[{"title":"titulo del paso","time":"X min","temp":"100C o Varoma o Sin calor","speed":"Vel. 1","mode":"Giro inverso o string vacio","description":"instruccion detallada"}],"notes":["consejo TM6"]}\n\nReglas: temperaturas reales en Celsius o Varoma, velocidades TM6 reales, giro inverso para arroz y carnes, 3 a 8 pasos, ajusta cantidades para '+portions+' porciones. SOLO JSON.';
+  try{
+    var r=await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key='+key,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{parts:[{text:prompt}]}],generationConfig:{temperature:0.3,maxOutputTokens:4000}})});
+    clearTimeout(loadingTimer);
+    if(r.status===400||r.status===403)throw new Error('INVALID_KEY');
+    if(!r.ok)throw new Error('Error '+r.status);
+    var d=await r.json();
+    var raw=d.candidates&&d.candidates[0]&&d.candidates[0].content&&d.candidates[0].content.parts&&d.candidates[0].content.parts[0]?d.candidates[0].content.parts[0].text:'';
+    if(!raw)throw new Error('Respuesta vacia');
+    var clean=raw.replace(/```json/g,'').replace(/```/g,'').trim();
+    var recipe=JSON.parse(clean);
+    renderRecipe(recipe);showScreen('screen-recipe')
+  }catch(err){
+    clearTimeout(loadingTimer);
+    if(err.message==='INVALID_KEY'){try{localStorage.removeItem('gmkey')}catch(e){}document.getElementById('apikey-input').value='';var ae=document.getElementById('apikey-error');ae.textContent='API key invalida. Introduce una nueva.';ae.style.display='block';showScreen('screen-apikey')}
+    else{showScreen('screen-input');eb.textContent=err.message.indexOf('JSON')>=0||err.message.indexOf('token')>=0?'Error al procesar. Prueba pegando el texto directamente.':'Error: '+err.message;eb.style.display='block'}
+  }
+}
+
+function renderRecipe(recipe){
+  document.getElementById('recipe-title').textContent=recipe.title||'Mi Receta TM6';
+  var m=document.getElementById('recipe-meta');m.innerHTML='';
+  [{icon:'&#9201;',label:recipe.totalTime||'--'},{icon:'&#128101;',label:(recipe.portions||portions)+' personas'},{icon:'&#128202;',label:recipe.difficulty||'Media'}].forEach(function(c){var ch=document.createElement('div');ch.className='meta-chip';ch.innerHTML='<span>'+c.icon+'</span> '+c.label;m.appendChild(ch)});
+  var il=document.getElementById('ingredients-list');il.innerHTML='';
+  (recipe.ingredients||[]).forEach(function(ing){var row=document.createElement('div');row.className='ingredient-row';row.innerHTML='<div class="ing-amount">'+(ing.amount||'')+'</div><div class="ing-name">'+(ing.name||'')+(ing.note?'<div class="ing-note">'+ing.note+'</div>':'')+'</div>';il.appendChild(row)});
+  if(!recipe.ingredients||!recipe.ingredients.length)il.innerHTML='<div style="padding:16px;color:var(--light);text-align:center;font-size:13px">Sin ingredientes</div>';
+  var sl=document.getElementById('steps-list');sl.innerHTML='';
+  (recipe.steps||[]).forEach(function(step,i){var card=document.createElement('div');card.className='step-card';var p=[];if(step.time)p.push('<span class="param-chip chip-time">&#9201; '+step.time+'</span>');if(step.temp)p.push('<span class="param-chip chip-temp">&#127777; '+step.temp+'</span>');if(step.speed)p.push('<span class="param-chip chip-speed">&#10024; '+step.speed+'</span>');if(step.mode)p.push('<span class="param-chip chip-mode">'+step.mode+'</span>');card.innerHTML='<div class="step-top"><div class="step-num">'+(i+1)+'</div><div class="step-title-text">'+(step.title||'')+'</div></div>'+(p.length?'<div class="step-params">'+p.join('')+'</div>':'')+'<div class="step-desc">'+(step.description||'')+'</div>';sl.appendChild(card)});
+  if(!recipe.steps||!recipe.steps.length)sl.innerHTML='<div style="padding:16px;color:var(--light);text-align:center;font-size:13px">Sin pasos</div>';
+  var nl=document.getElementById('notes-list');nl.innerHTML='';
+  (recipe.notes||[]).forEach(function(note){var item=document.createElement('div');item.className='note-item';item.innerHTML='<span class="note-dot">&#8226;</span> '+note;nl.appendChild(item)});
+  if(!recipe.notes||!recipe.notes.length)nl.innerHTML='<div style="padding:4px 0;color:var(--light);font-size:13px">Sin notas adicionales</div>'
+}
+
+window.addEventListener('load',function(){loadKey()?showScreen('screen-input'):showScreen('screen-apikey')});
+</script>
+</body>
+</html>
